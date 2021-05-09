@@ -11,6 +11,7 @@ app.include_router(users.router)
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "https://sistem-alumni-asysyaamil-api.herokuapp.com"
 ]
 
 app.add_middleware(
