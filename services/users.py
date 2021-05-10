@@ -1,5 +1,5 @@
 from utils.db import write, read
-from utils.auth import generate_id, get_current_time, hash_password, password_matches, create_jwt
+from utils.auth import generate_id, get_current_time, hash_password, password_matches, create_jwt, read_jwt
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 import json
@@ -26,7 +26,8 @@ FIELDS = [
     'year_entry_sma',
     'activity',
     'created_date',
-    'updated_date'
+    'updated_date',
+    'is_admin'
 ]
 PARSED_QUERY = BASE_QUERY % (', '.join(FIELDS))
 
@@ -138,14 +139,18 @@ def login(email, password):
         results = read(parsed_query)
         if len(results) == 0:
             raise HTTPException(404)
-        hashed_password = results[0][0].encode()
-        if not password_matches(password, hashed_password):
-            raise HTTPException(403)
-        user = getByEmail(email)
-        jwt = create_jwt(user)
-        return jwt
+        else:
+          hashed_password = results[0][0].encode()
+          print(hashed_password)
+          if not password_matches(password, hashed_password):
+              raise HTTPException(403)
+          else:
+            user = getByEmail(email)
+            jwt = create_jwt(user)
+            return jwt
     except Exception as e:
-        print(e)
+      print(e)
+      raise HTTPException(500, e)
 
 
 def resultsToObjects(results):
@@ -161,3 +166,26 @@ def resultsToObjects(results):
 def getAll():
     results = read(PARSED_QUERY)
     return resultsToObjects(results)
+
+def verify(email, jwt):
+    try:
+        jwt_content = read_jwt(jwt)
+        if not jwt_content['is_admin']:
+            raise HTTPException(403)
+        # this is called by admin
+        query = """
+                UPDATE users
+                SET
+                verified_date = %s,
+                verified_by = %s
+                WHERE
+                email= %s
+                """
+        verified_date = get_current_time()
+        result = write(query, (verified_date, jwt_content['email'], email))
+        return {
+            "message": "Verification success"
+        }
+    except Exception as e:
+        print(e)
+        raise HTTPException(500)
