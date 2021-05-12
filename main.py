@@ -1,4 +1,4 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI
 from routers import users
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -11,7 +11,9 @@ app.include_router(users.router)
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://sistem-alumni-asysyaamil-web.herokuapp.com",
     "https://sistem-alumni-asysyaamil-web.herokuapp.com"
+
 ]
 
 app.add_middleware(
@@ -22,9 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def home():
     return RedirectResponse("/docs")
+
 
 @app.get('/generate-token')
 def token():
