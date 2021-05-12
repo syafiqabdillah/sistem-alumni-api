@@ -27,7 +27,9 @@ FIELDS = [
     'activity',
     'created_date',
     'updated_date',
-    'is_admin'
+    'is_admin',
+    'verified_date',
+    'verified_by'
 ]
 PARSED_QUERY = BASE_QUERY % (', '.join(FIELDS))
 
