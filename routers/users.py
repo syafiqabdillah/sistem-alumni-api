@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from utils.auth import read_jwt
 
 import services.users as db
+import services.alumni as db_alumni
 
 router = APIRouter(
   prefix="/users",
@@ -71,3 +72,7 @@ class FormVerification(BaseModel):
 @router.post('/verify')
 def verify(form: FormVerification):
   return db.verify(form.email, form.jwt)
+
+@router.get('/alumni-count')
+def getAlumniCount(unit: str):
+  return db_alumni.getAlumniCount(unit)
