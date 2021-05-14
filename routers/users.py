@@ -62,8 +62,8 @@ def login(form: FormLogin):
   return db.login(form.email, form.password)
 
 @router.get('/')
-def getAll():
-  return db.getAll()
+def getAll(jwt: str):
+  return db.getAll(jwt)
 
 class FormVerification(BaseModel):
   email: str

@@ -165,9 +165,13 @@ def resultsToObjects(results):
     return obj_list
 
 
-def getAll():
-    results = read(PARSED_QUERY)
-    return resultsToObjects(results)
+def getAll(jwt):
+    jwtContent = read_jwt(jwt)
+    if jwtContent['is_admin']:
+      results = read(PARSED_QUERY)
+      return resultsToObjects(results)
+    else:
+      raise HTTPException(403)
 
 def verify(email, jwt):
     try:
