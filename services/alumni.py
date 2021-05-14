@@ -10,4 +10,17 @@ def getAlumniCount(unit):
   return {
     "count": count
   }
-  
+
+def getAlumni(unit):
+  query = """
+          SELECT email, fullname
+          FROM users
+          WHERE year_entry_%s IS NOT NULL
+          """
+  results = read(query % unit)
+  return [
+    {
+      "email": alumni[0],
+      "fullname": alumni[1]
+    } for alumni in results
+  ]

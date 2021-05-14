@@ -76,3 +76,7 @@ def verify(form: FormVerification):
 @router.get('/alumni-count')
 def getAlumniCount(unit: str):
   return db_alumni.getAlumniCount(unit)
+
+@router.get('/alumni')
+def getAlumni(unit: str):
+  return db_alumni.getAlumni(unit)
