@@ -16,6 +16,7 @@ def getAlumni(unit):
           SELECT email, fullname
           FROM users
           WHERE year_entry_%s IS NOT NULL
+          AND verified_date IS NOT NULL
           """
   results = read(query % unit)
   return [
