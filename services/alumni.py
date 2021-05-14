@@ -25,3 +25,12 @@ def getAlumni(unit):
       "fullname": alumni[1]
     } for alumni in results
   ]
+
+def checkVerifiedAlumni(jwt):
+  jwtContent = read_jwt(jwt)
+  email = jwtContent['email']
+  query = "SELECT count(1) FROM users WHERE email = '%s' AND verified_date IS NOT NULL"
+  result = read(query % email)[0][0]
+  return {
+    "verified": result == 1
+  }

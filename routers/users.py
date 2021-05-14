@@ -80,3 +80,11 @@ def getAlumniCount(unit: str):
 @router.get('/alumni')
 def getAlumni(unit: str):
   return db_alumni.getAlumni(unit)
+
+class FormCheckVerified(BaseModel):
+  jwt: str
+
+@router.post('/check-verified')
+def checkVerifiedAlumni(form: FormCheckVerified):
+  print(read_jwt(form.jwt))
+  return db_alumni.checkVerifiedAlumni(form.jwt)
