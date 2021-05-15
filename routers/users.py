@@ -105,6 +105,7 @@ class FormEdit(BaseModel):
   year_entry_smp: Optional[str]
   year_entry_sma: Optional[str]
   activity: str
+  is_admin: bool
 
 @router.post('/update')
 def update(form: FormEdit):

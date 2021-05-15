@@ -218,7 +218,8 @@ def update(data):
           year_entry_sma = %s,
           activity = %s,
           updated_by = %s,
-          updated_date = %s
+          updated_date = %s,
+          is_admin = %s
           WHERE 
           email = %s
           """
@@ -238,6 +239,7 @@ def update(data):
     form['activity'],
     updated_by,
     updated_date,
+    int(form['is_admin']),
     form['email']
   ))
   return result
