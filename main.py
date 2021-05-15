@@ -3,6 +3,14 @@ from routers import users
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from utils.auth import generate_id
+from dotenv import load_dotenv
+import uvicorn
+import os
+
+load_dotenv()
+
+PORT = int(os.getenv('PORT'))
+WEB_URL = os.getenv('WEB_URL')
 
 app = FastAPI()
 
@@ -11,9 +19,8 @@ app.include_router(users.router)
 origins = [
     "http://localhost",
     "http://localhost:3000",
-    "http://sistem-alumni-asysyaamil-web.herokuapp.com",
-    "https://sistem-alumni-asysyaamil-web.herokuapp.com"
-
+    f"http://{WEB_URL}",
+    f"https://{WEB_URL}"
 ]
 
 app.add_middleware(
@@ -33,3 +40,6 @@ def home():
 @app.get('/generate-token')
 def token():
     return generate_id(length=50)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
