@@ -195,3 +195,49 @@ def verify(email, jwt):
     except Exception as e:
         print(e)
         raise HTTPException(500)
+
+def update(data):
+  form = data
+  jwt = form.pop('jwt')
+  updated_by = read_jwt(jwt)['email']
+  updated_date = get_current_time()
+  query = """
+          UPDATE users 
+          SET
+          fullname = %s,
+          birthplace = %s,
+          birthdate = %s,
+          gender = %s,
+          phone = %s,
+          address = %s,
+          parent_name = %s,
+          parent_phone = %s,
+          year_entry_tk = %s,
+          year_entry_sd = %s,
+          year_entry_smp = %s,
+          year_entry_sma = %s,
+          activity = %s,
+          updated_by = %s,
+          updated_date = %s
+          WHERE 
+          email = %s
+          """
+  result = write(query, (
+    form['fullname'],
+    form['birthplace'],
+    form['birthdate'],
+    form['gender'],
+    form['phone'],
+    form['address'],
+    form['parent_name'],
+    form['parent_phone'],
+    form['year_entry_tk'],
+    form['year_entry_sd'],
+    form['year_entry_smp'],
+    form['year_entry_sma'],
+    form['activity'],
+    updated_by,
+    updated_date,
+    form['email']
+  ))
+  return result

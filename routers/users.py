@@ -88,3 +88,24 @@ class FormCheckVerified(BaseModel):
 def checkVerifiedAlumni(form: FormCheckVerified):
   print(read_jwt(form.jwt))
   return db_alumni.checkVerifiedAlumni(form.jwt)
+
+class FormEdit(BaseModel):
+  jwt: str
+  email: str
+  fullname: str
+  birthplace: str
+  birthdate: str
+  gender: int
+  phone: str
+  address: str
+  parent_name: Optional[str]
+  parent_phone: Optional[str]
+  year_entry_tk: Optional[str]
+  year_entry_sd: Optional[str]
+  year_entry_smp: Optional[str]
+  year_entry_sma: Optional[str]
+  activity: str
+
+@router.post('/update')
+def update(form: FormEdit):
+  return db.update(form.dict())
