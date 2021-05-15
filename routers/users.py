@@ -62,8 +62,8 @@ def login(form: FormLogin):
   return db.login(form.email, form.password)
 
 @router.get('/')
-def getAll():
-  return db.getAll()
+def getAll(jwt: str):
+  return db.getAll(jwt)
 
 class FormVerification(BaseModel):
   email: str
@@ -76,3 +76,36 @@ def verify(form: FormVerification):
 @router.get('/alumni-count')
 def getAlumniCount(unit: str):
   return db_alumni.getAlumniCount(unit)
+
+@router.get('/alumni')
+def getAlumni(unit: str):
+  return db_alumni.getAlumni(unit)
+
+class FormCheckVerified(BaseModel):
+  jwt: str
+
+@router.post('/check-verified')
+def checkVerifiedAlumni(form: FormCheckVerified):
+  print(read_jwt(form.jwt))
+  return db_alumni.checkVerifiedAlumni(form.jwt)
+
+class FormEdit(BaseModel):
+  jwt: str
+  email: str
+  fullname: str
+  birthplace: str
+  birthdate: str
+  gender: int
+  phone: str
+  address: str
+  parent_name: Optional[str]
+  parent_phone: Optional[str]
+  year_entry_tk: Optional[str]
+  year_entry_sd: Optional[str]
+  year_entry_smp: Optional[str]
+  year_entry_sma: Optional[str]
+  activity: str
+
+@router.post('/update')
+def update(form: FormEdit):
+  return db.update(form.dict())
