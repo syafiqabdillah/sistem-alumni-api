@@ -94,7 +94,6 @@ class FormCheckVerified(BaseModel):
 
 @router.post('/check-verified')
 def checkVerifiedAlumni(form: FormCheckVerified):
-  print(read_jwt(form.jwt))
   return db_alumni.checkVerifiedAlumni(form.jwt)
 
 class FormEdit(BaseModel):
@@ -118,3 +117,12 @@ class FormEdit(BaseModel):
 @router.post('/update')
 def update(form: FormEdit):
   return db.update(form.dict())
+
+class FormChangePassword(BaseModel):
+  email: str
+  old_password: str
+  new_password: str
+
+@router.post('/change-password', dependencies=[Depends(JWTBearer())])
+def changePassword(form: FormChangePassword):
+  return db.changePassword(form.dict())

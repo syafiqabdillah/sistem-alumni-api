@@ -143,7 +143,6 @@ def login(email, password):
             raise HTTPException(404)
         else:
           hashed_password = results[0][0].encode()
-          print(hashed_password)
           if not password_matches(password, hashed_password):
             raise HTTPException(403)
           else:
@@ -232,3 +231,20 @@ def update(data):
     form['email']
   ))
   return result
+
+def changePassword(data):
+    try:
+        email = data['email']
+        oldPassword = data['old_password']
+        newPassword = data['new_password']
+        query = f"SELECT hashed_password FROM users WHERE email = '{email}'"
+        hashedPassword = read(query)[0][0].encode()
+        if password_matches(oldPassword, hashedPassword):
+            newHashedPassword = hash_password(newPassword)
+            query = "UPDATE users SET hashed_password = %s WHERE email = %s"
+            result = write(query, (newHashedPassword, email))
+            return result
+        raise HTTPException(403)
+    except Exception as e:
+        print(e)
+        raise HTTPException(500)
