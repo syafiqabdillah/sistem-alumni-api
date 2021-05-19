@@ -32,7 +32,6 @@ class FormCreate(BaseModel):
 
 @router.post('/')
 def create(form: FormCreate):
-  print(form)
   return db.create(
     form.password,
     form.email,
