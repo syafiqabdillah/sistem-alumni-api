@@ -145,7 +145,7 @@ def login(email, password):
           hashed_password = results[0][0].encode()
           print(hashed_password)
           if not password_matches(password, hashed_password):
-              raise HTTPException(403)
+            raise HTTPException(403)
           else:
             user = getByEmail(email)
             jwt = create_jwt(user)
@@ -165,36 +165,25 @@ def resultsToObjects(results):
     return obj_list
 
 
-def getAll(jwt):
-    jwtContent = read_jwt(jwt)
-    if jwtContent['is_admin']:
-      results = read(PARSED_QUERY)
-      return resultsToObjects(results)
-    else:
-      raise HTTPException(403)
+def getAll():
+    results = read(PARSED_QUERY)
+    return resultsToObjects(results)
 
 def verify(email, jwt):
-    try:
-        jwt_content = read_jwt(jwt)
-        if not jwt_content['is_admin']:
-            raise HTTPException(403)
-        # this is called by admin
-        query = """
-                UPDATE users
-                SET
-                verified_date = %s,
-                verified_by = %s
-                WHERE
-                email= %s
-                """
-        verified_date = get_current_time()
-        result = write(query, (verified_date, jwt_content['email'], email))
-        return {
-            "message": "Verification success"
-        }
-    except Exception as e:
-        print(e)
-        raise HTTPException(500)
+    jwtContent = read_jwt(jwt)
+    query = """
+            UPDATE users
+            SET
+            verified_date = %s,
+            verified_by = %s
+            WHERE
+            email= %s
+            """
+    verified_date = get_current_time()
+    result = write(query, (verified_date, jwtContent['email'], email))
+    return {
+        "message": "Verification success"
+    }
 
 def update(data):
   form = data

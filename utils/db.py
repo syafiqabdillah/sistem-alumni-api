@@ -26,7 +26,6 @@ def read(query):
     print(e)
 
 def write(query, value):
-  print(query)
   try:
     with mysql.connect(
       host=DB_HOST,

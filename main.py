@@ -12,7 +12,10 @@ load_dotenv()
 PORT = int(os.getenv('PORT'))
 WEB_URL = os.getenv('WEB_URL')
 
-app = FastAPI()
+app = FastAPI(
+    title="Sistem Alumni Asy Syaamil API",
+    version="1.1.0",
+)
 
 app.include_router(users.router)
 

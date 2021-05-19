@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from typing import Optional 
 from pydantic import BaseModel
 from utils.auth import read_jwt
+from utils.auth_bearer import JWTBearer
+from utils.admin_bearer import AdminBearer
 
 import services.users as db
 import services.alumni as db_alumni
@@ -49,9 +51,13 @@ def create(form: FormCreate):
     form.activity
   )
 
-@router.get('/by-email')
-def getByEmail(email):
-  return db.getByEmail(email)
+
+@router.get('/by-email', dependencies=[Depends(AdminBearer())])
+def getByEmail(email, Authorization: Optional[str] = Header(None)):
+  jwt = Authorization.split(' ')[1]
+  if read_jwt(jwt)['is_admin']:
+    return db.getByEmail(email)
+  raise HTTPException(403)
 
 class FormLogin(BaseModel):
   email: str
@@ -61,17 +67,19 @@ class FormLogin(BaseModel):
 def login(form: FormLogin):
   return db.login(form.email, form.password)
 
-@router.get('/')
-def getAll(jwt: str):
-  return db.getAll(jwt)
+@router.get('/', dependencies=[Depends(AdminBearer())])
+def getAll():
+  return db.getAll()
 
 class FormVerification(BaseModel):
   email: str
-  jwt: str
 
-@router.post('/verify')
-def verify(form: FormVerification):
-  return db.verify(form.email, form.jwt)
+@router.post('/verify', dependencies=[Depends(JWTBearer())])
+def verify(form: FormVerification, Authorization: Optional[str] = Header(None)):
+  jwt = Authorization.split(' ')[1]
+  if read_jwt(jwt)['is_admin']:
+    return db.verify(form.email, jwt)
+  raise HTTPException(403)
 
 @router.get('/alumni-count')
 def getAlumniCount(unit: str):
