@@ -14,7 +14,7 @@ WEB_URL = os.getenv('WEB_URL')
 
 app = FastAPI(
     title="Sistem Alumni Asy Syaamil API",
-    version="1.2.0",
+    version="1.3.0",
 )
 
 app.include_router(users.router)

@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 import json
 import datetime
+import math
 
 BASE_QUERY = """
             SELECT %s
@@ -163,10 +164,55 @@ def resultsToObjects(results):
         obj_list.append(obj)
     return obj_list
 
+LIMIT = 5
 
-def getAll():
-    results = read(PARSED_QUERY)
-    return resultsToObjects(results)
+def getAll(query, page):
+    offset = math.floor((page - 1) * LIMIT)
+    results = read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%' ORDER BY created_date ASC LIMIT {LIMIT} OFFSET {offset}")
+    users = resultsToObjects(results)
+    totalData = len(read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%'"))
+    totalPage = math.ceil(totalData / LIMIT)
+    return {
+        'users': users,
+        'currentPage': page,
+        'totalData': totalData,
+        'perPage': LIMIT,
+        'totalPage': totalPage,
+        'nextPage': page + 1 if page < totalPage else None,
+        'prevPage': page - 1 if page > 1 else None
+    }
+
+def getVerified(query, page):
+    offset = math.floor((page - 1) * LIMIT)
+    results = read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%' AND verified_date IS NOT NULL ORDER BY created_date ASC LIMIT {LIMIT} OFFSET {offset}")
+    users = resultsToObjects(results)
+    totalData = len(read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%' AND verified_date IS NOT NULL"))
+    totalPage = math.ceil(totalData / LIMIT)
+    return {
+        'users': users,
+        'currentPage': page,
+        'totalData': totalData,
+        'perPage': LIMIT,
+        'totalPage': totalPage,
+        'nextPage': page + 1 if page < totalPage else None,
+        'prevPage': page - 1 if page > 1 else None
+    }
+
+def getUnverified(query, page):
+    offset = math.floor((page - 1) * LIMIT)
+    results = read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%' AND verified_date IS NULL ORDER BY created_date ASC LIMIT {LIMIT} OFFSET {offset}")
+    users = resultsToObjects(results)
+    totalData = len(read(PARSED_QUERY + f" WHERE LOWER(fullname) like '%{query}%' AND verified_date IS NULL"))
+    totalPage = math.ceil(totalData / LIMIT)
+    return {
+        'users': users,
+        'currentPage': page,
+        'totalData': totalData,
+        'perPage': LIMIT,
+        'totalPage': totalPage,
+        'nextPage': page + 1 if page < totalPage else None,
+        'prevPage': page - 1 if page > 1 else None
+    }
 
 def verify(email, jwt):
     jwtContent = read_jwt(jwt)

@@ -67,8 +67,16 @@ def login(form: FormLogin):
   return db.login(form.email, form.password)
 
 @router.get('/', dependencies=[Depends(AdminBearer())])
-def getAll():
-  return db.getAll()
+def getAll(query: str= "", page: int = 1):
+  return db.getAll(query.lower(), page)
+
+@router.get('/unverified', dependencies=[Depends(AdminBearer())])
+def getUnverified(query: str = "", page: int = 1):
+  return db.getUnverified(query.lower(), page)
+
+@router.get('/verified', dependencies=[Depends(AdminBearer())])
+def getVerified(query: str = "", page: int = 1):
+  return db.getVerified(query.lower(), page)
 
 class FormVerification(BaseModel):
   email: str
