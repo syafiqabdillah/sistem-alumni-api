@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 import json
 import datetime
 import math
+import datetime
 
 BASE_QUERY = """
             SELECT %s

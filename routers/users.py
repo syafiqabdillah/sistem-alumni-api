@@ -9,6 +9,7 @@ import shutil
 import os
 import services.users as db
 import services.alumni as db_alumni
+from datetime import datetime
 
 router = APIRouter(
   prefix="/users",
@@ -56,7 +57,9 @@ def create(form: FormCreate):
 @router.get('/by-email', dependencies=[Depends(AdminBearer())])
 def getByEmail(email, Authorization: Optional[str] = Header(None)):
   jwt = Authorization.split(' ')[1]
-  if read_jwt(jwt)['is_admin']:
+  jwtContent = read_jwt(jwt)
+  # valid if admin atau dirinya sendiri
+  if read_jwt(jwt)['is_admin'] or email == jwtContent['email']:
     return db.getByEmail(email)
   raise HTTPException(403)
 
@@ -142,23 +145,19 @@ class FormUploadFile(BaseModel):
 def fileSizeValid(file):
   return file.spool_max_size / 1024 / 1024 < 2
 
-def removeIfExists(filename):
-  target = os.path.join('image', filename)
-  if os.path.exists(target):
-    os.remove(target)
-
 @router.post('/upload-profile-picture', dependencies=[Depends(JWTBearer())])
 async def uploadProfilePicture(id: str, file: UploadFile = File(...), Authorization: Optional[str] = Header(None)):
   if (fileSizeValid(file)):
     try:
-      extension = file.filename.split('.')[-1]
-      filename = f"{id}.{extension}"
-      removeIfExists(filename)
+      ext = file.filename.split('.')[-1]
+      ts = int(datetime.now().timestamp())
+      filename = f"{id}-{ts}.{ext}"
       with open(os.path.join('image', filename), "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
       db.saveProfilePicture(id, filename)
       return {
         "id": id,
+        "filename": filename
       }
     except Exception as e:
       print(e)

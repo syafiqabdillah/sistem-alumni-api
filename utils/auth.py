@@ -42,6 +42,3 @@ def password_matches(password, hashed):
 
 def get_current_time():
     return datetime.now(tz)
-
-if __name__=="__main__":
-    print(get_current_time())
