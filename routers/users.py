@@ -58,7 +58,6 @@ def create(form: FormCreate):
 def getByEmail(email, Authorization: Optional[str] = Header(None)):
   jwt = Authorization.split(' ')[1]
   jwtContent = read_jwt(jwt)
-  print(jwtContent)
   # valid if admin atau dirinya sendiri
   if jwtContent['is_admin'] or email == jwtContent['email']:
     return db.getByEmail(email)
