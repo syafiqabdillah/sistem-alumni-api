@@ -54,12 +54,13 @@ def create(form: FormCreate):
   )
 
 
-@router.get('/by-email', dependencies=[Depends(AdminBearer())])
+@router.get('/by-email', dependencies=[Depends(JWTBearer())])
 def getByEmail(email, Authorization: Optional[str] = Header(None)):
   jwt = Authorization.split(' ')[1]
   jwtContent = read_jwt(jwt)
+  print(jwtContent)
   # valid if admin atau dirinya sendiri
-  if read_jwt(jwt)['is_admin'] or email == jwtContent['email']:
+  if jwtContent['is_admin'] or email == jwtContent['email']:
     return db.getByEmail(email)
   raise HTTPException(403)
 
