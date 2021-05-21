@@ -1,3 +1,4 @@
+aiofiles==0.7.0
 autopep8==1.5.7
 bcrypt==3.2.0
 cffi==1.14.4
@@ -11,6 +12,7 @@ pycparser==2.20
 pydantic==1.7.3
 PyJWT==2.0.0
 python-dotenv==0.15.0
+python-multipart==0.0.5
 pytz==2021.1
 six==1.15.0
 starlette==0.13.6
