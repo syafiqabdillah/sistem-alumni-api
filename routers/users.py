@@ -94,9 +94,9 @@ def verify(form: FormVerification, Authorization: Optional[str] = Header(None)):
 def getAlumniCount(unit: str):
   return db_alumni.getAlumniCount(unit)
 
-@router.get('/alumni')
-def getAlumni(unit: str):
-  return db_alumni.getAlumni(unit)
+@router.get('/alumni', dependencies=[Depends(JWTBearer())])
+def getAlumni(unit: str, page: int, query: str):
+  return db_alumni.getAlumni(unit, page, query)
 
 class FormCheckVerified(BaseModel):
   jwt: str

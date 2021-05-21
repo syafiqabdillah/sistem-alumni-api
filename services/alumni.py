@@ -4,27 +4,73 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 import json
 import datetime
+import math
 
 def getAlumniCount(unit):
-  count = read("SELECT count(1) FROM users WHERE year_entry_%s IS NOT NULL" % unit)[0][0]
+  query = """
+          SELECT count(1) 
+          FROM users 
+          WHERE 
+          year_entry_%s IS NOT NULL AND 
+          verified_date IS NOT NULL
+          """
+  count = read(query % unit)[0][0]
   return {
     "count": count
   }
 
-def getAlumni(unit):
+LIMIT = 6
+
+def getAlumni(unit, page, query):
+  # Limited data
+  like = f"%{query.lower()}%"
+  offset = math.floor((page - 1) * LIMIT)
   query = """
-          SELECT email, fullname
+          SELECT id, email, fullname, profile_picture
           FROM users
-          WHERE year_entry_%s IS NOT NULL
-          AND verified_date IS NOT NULL
+          WHERE 
+          year_entry_%s IS NOT NULL AND 
+          verified_date IS NOT NULL AND 
+          email != 'syafiq.abdillah@ui.ac.id' AND
+          LOWER(fullname) like '%s'
+          ORDER BY fullname ASC
+          LIMIT %s
+          OFFSET %s
           """
-  results = read(query % unit)
-  return [
+  results = read(query % (unit, like, LIMIT, offset))
+  users = [
     {
-      "email": alumni[0],
-      "fullname": alumni[1]
+      "id": alumni[0],
+      "email": alumni[1],
+      "fullname": alumni[2],
+      "profile_picture": alumni[3]
     } for alumni in results
   ]
+  # All data
+  query = """
+          SELECT count(1)
+          FROM users
+          WHERE 
+          year_entry_%s IS NOT NULL AND 
+          verified_date IS NOT NULL AND 
+          email != 'syafiq.abdillah@ui.ac.id' AND
+          LOWER(fullname) like '%s'
+          """
+  parsed = query % (unit, like)
+  totalData = read(parsed)[0][0]
+  totalPage = math.ceil(totalData / LIMIT)
+  result = {
+    'users': users,
+    'pagination': {
+      'currentPage': page,
+      'totalData': totalData,
+      'perPage': LIMIT,
+      'totalPage': totalPage,
+      'nextPage': page + 1 if page < totalPage else None,
+      'prevPage': page - 1 if page > 1 else None
+    }
+  }
+  return result
 
 def checkVerifiedAlumni(jwt):
   jwtContent = read_jwt(jwt)
