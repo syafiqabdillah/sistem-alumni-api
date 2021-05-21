@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File
+from fastapi.responses import StreamingResponse, FileResponse
 from typing import Optional 
 from pydantic import BaseModel
 from utils.auth import read_jwt
 from utils.auth_bearer import JWTBearer
 from utils.admin_bearer import AdminBearer
-
+import shutil
+import os
 import services.users as db
 import services.alumni as db_alumni
 
@@ -133,3 +135,40 @@ class FormChangePassword(BaseModel):
 @router.post('/change-password', dependencies=[Depends(JWTBearer())])
 def changePassword(form: FormChangePassword):
   return db.changePassword(form.dict())
+
+class FormUploadFile(BaseModel):
+  id: str  
+
+def fileSizeValid(file):
+  return file.spool_max_size / 1024 / 1024 < 2
+
+def removeIfExists(filename):
+  target = os.path.join('image', filename)
+  if os.path.exists(target):
+    os.remove(target)
+
+@router.post('/upload-profile-picture', dependencies=[Depends(JWTBearer())])
+async def uploadProfilePicture(id: str, file: UploadFile = File(...), Authorization: Optional[str] = Header(None)):
+  if (fileSizeValid(file)):
+    try:
+      extension = file.filename.split('.')[-1]
+      filename = f"{id}.{extension}"
+      removeIfExists(filename)
+      with open(os.path.join('image', filename), "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+      db.saveProfilePicture(id, filename)
+      return {
+        "id": id,
+      }
+    except Exception as e:
+      print(e)
+      raise HTTPException(500)
+  else:
+    raise HTTPException(400, 'File size too large')
+
+@router.get('/profile-picture')
+async def getProfilePicture(id: str):
+  filename = db.getFilename(id)
+  if filename:
+    return FileResponse(os.path.join('image', filename))
+  return None

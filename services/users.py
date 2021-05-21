@@ -30,7 +30,8 @@ FIELDS = [
     'updated_date',
     'is_admin',
     'verified_date',
-    'verified_by'
+    'verified_by',
+    'profile_picture'
 ]
 PARSED_QUERY = BASE_QUERY % (', '.join(FIELDS))
 
@@ -174,12 +175,14 @@ def getAll(query, page):
     totalPage = math.ceil(totalData / LIMIT)
     return {
         'users': users,
-        'currentPage': page,
-        'totalData': totalData,
-        'perPage': LIMIT,
-        'totalPage': totalPage,
-        'nextPage': page + 1 if page < totalPage else None,
-        'prevPage': page - 1 if page > 1 else None
+        'pagination': {
+            'currentPage': page,
+            'totalData': totalData,
+            'perPage': LIMIT,
+            'totalPage': totalPage,
+            'nextPage': page + 1 if page < totalPage else None,
+            'prevPage': page - 1 if page > 1 else None
+        }
     }
 
 def getVerified(query, page):
@@ -190,12 +193,14 @@ def getVerified(query, page):
     totalPage = math.ceil(totalData / LIMIT)
     return {
         'users': users,
-        'currentPage': page,
-        'totalData': totalData,
-        'perPage': LIMIT,
-        'totalPage': totalPage,
-        'nextPage': page + 1 if page < totalPage else None,
-        'prevPage': page - 1 if page > 1 else None
+        'pagination': {
+            'currentPage': page,
+            'totalData': totalData,
+            'perPage': LIMIT,
+            'totalPage': totalPage,
+            'nextPage': page + 1 if page < totalPage else None,
+            'prevPage': page - 1 if page > 1 else None
+        }
     }
 
 def getUnverified(query, page):
@@ -206,12 +211,14 @@ def getUnverified(query, page):
     totalPage = math.ceil(totalData / LIMIT)
     return {
         'users': users,
-        'currentPage': page,
-        'totalData': totalData,
-        'perPage': LIMIT,
-        'totalPage': totalPage,
-        'nextPage': page + 1 if page < totalPage else None,
-        'prevPage': page - 1 if page > 1 else None
+        'pagination': {
+            'currentPage': page,
+            'totalData': totalData,
+            'perPage': LIMIT,
+            'totalPage': totalPage,
+            'nextPage': page + 1 if page < totalPage else None,
+            'prevPage': page - 1 if page > 1 else None
+        }
     }
 
 def verify(email, jwt):
@@ -294,3 +301,24 @@ def changePassword(data):
     except Exception as e:
         print(e)
         raise HTTPException(500)
+
+def saveProfilePicture(id, filename):
+    query = """
+            UPDATE users
+            SET
+            profile_picture = %s
+            WHERE id = %s
+            """
+    return write(query, (filename, id))
+
+def getFilename(id):
+    query = """
+            SELECT profile_picture
+            FROM users
+            WHERE id = '%s'
+            """
+    query = query % (id, )
+    results = read(query)
+    if len(results) == 1:
+        return results[0][0]
+    return None

@@ -14,7 +14,7 @@ WEB_URL = os.getenv('WEB_URL')
 
 app = FastAPI(
     title="Sistem Alumni Asy Syaamil API",
-    version="1.3.0",
+    version="1.4.0",
 )
 
 app.include_router(users.router)
@@ -22,6 +22,7 @@ app.include_router(users.router)
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:3333",
     f"http://{WEB_URL}",
     f"https://{WEB_URL}"
 ]
@@ -34,6 +35,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+image_dir_path = os.path.join(os.getcwd(), 'image')
+if not os.path.exists(image_dir_path) and not os.path.isdir(image_dir_path):
+    os.mkdir('image')
 
 @app.get("/")
 def home():
