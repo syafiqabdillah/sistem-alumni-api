@@ -166,8 +166,9 @@ async def uploadProfilePicture(id: str, file: UploadFile = File(...), Authorizat
     raise HTTPException(400, 'File size too large')
 
 @router.get('/profile-picture')
-async def getProfilePicture(id: str):
-  filename = db.getFilename(id)
-  if filename:
+async def getProfilePicture(filename: str):
+  try:
     return FileResponse(os.path.join('image', filename))
-  return None
+  except Exception as e:
+    print(e)
+    raise HTTPException(500)
