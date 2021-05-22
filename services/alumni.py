@@ -26,24 +26,25 @@ def getAlumni(unit, page, query):
   like = f"%{query.lower()}%"
   offset = math.floor((page - 1) * LIMIT)
   query = """
-          SELECT id, email, fullname, profile_picture
+          SELECT id, email, fullname, profile_picture, year_entry_%s
           FROM users
           WHERE 
           year_entry_%s IS NOT NULL AND 
           verified_date IS NOT NULL AND 
           email != 'syafiq.abdillah@ui.ac.id' AND
           LOWER(fullname) like '%s'
-          ORDER BY fullname ASC
+          ORDER BY year_entry_%s ASC
           LIMIT %s
           OFFSET %s
           """
-  results = read(query % (unit, like, LIMIT, offset))
+  results = read(query % (unit, unit, like, unit, LIMIT, offset))
   users = [
     {
       "id": alumni[0],
       "email": alumni[1],
       "fullname": alumni[2],
-      "profile_picture": alumni[3]
+      "profile_picture": alumni[3],
+      "year_entry": alumni[4]
     } for alumni in results
   ]
   # All data
